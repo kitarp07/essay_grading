@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essay Scores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            display: flex;
+            flex-direction: column; /* Stack sections vertically */
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 20px; /* Gap between sections */
+        }
+        .upload-form {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        .section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+        .container-flex {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px; /* Gap between sections */
+        }
+        .essays {
+            flex: 4; /* Wider section for essays */
+        }
+        .scores, .essay-sets, .predicted-scores {
+            flex: 2; /* Thinner sections for scores, essay sets, and predicted scores */
+        }
+        .section-header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .essay-item, .score-item, .set-item, .predicted-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #f9f9f9;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for separation */
+        }
+        .essay-item {
+            max-height: 23.2px; /* Increased height for essay boxes */
+            overflow: hidden;
+            position: relative;
+            text-overflow: ellipsis;
+            border-left: 5px solid #007bff; /* Left border for visual separation */
+        }
+        .essay-item pre {
+            margin: 0;
+            white-space: pre-wrap; /* Allows text to wrap within the box */
+        }
+        .score-item, .set-item, .predicted-item {
+            font-size: 1.25em;
+            color: #333;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .container-flex {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Upload Form Section -->
+        <div class="upload-form">
+            <form action="/scoring" method="post" enctype="multipart/form-data">
+                <label for="file">Upload CSV File:</label>
+                <input type="file" id="file" name="file" accept=".csv" required>
+                <button type="submit">Upload and Predict</button>
+            </form>
+        </div>
+
+        <!-- Main Content Section -->
+        <div class="container-flex">
+            <!-- Essays Section -->
+            <div class="section essays">
+                <div class="section-header">Essays</div>
+                {% for essay in essays %}
+                <div class="essay-item">
+                    <pre>{{ essay }}</pre>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Scores Section -->
+            <div class="section scores">
+                <div class="section-header">Scores</div>
+                {% for score in scores %}
+                <div class="score-item">
+                    {{ score['overall_score'] }}/{{ score['total_score'] }}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Predicted Scores Section -->
+            <div class="section predicted-scores">
+                <div class="section-header">Predicted Scores</div>
+                {% for predicted in predicted_scores %}
+                <div class="predicted-item">
+                    {{ predicted['predicted_score'] }}/{{ predicted['total_score'] }}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Essay Sets Section -->
+            <div class="section essay-sets">
+                <div class="section-header">Essay Sets</div>
+                {% for set in essay_sets %}
+                <div class="set-item">
+                    {{ set }}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

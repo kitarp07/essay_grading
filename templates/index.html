@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essay Scoring</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            max-width: 1200px;
+            gap: 20px;
+        }
+        .form-section, .result-section {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 50%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+            resize: vertical;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            width: 200px;
+        }
+        h3 {
+            color: #333;
+        }
+        p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Automated Scoring</h2>
+    <div class="container">
+        <div class="form-section">
+            <form id="essayForm" onsubmit="submitEssay(event)">
+                <textarea name="essay" rows="10" placeholder="Enter your essay here..." required></textarea><br>
+                <input type="submit" value="Check Grade">
+            </form>
+        </div>
+        <div class="result-section" id="result">
+            <!-- Results will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        function submitEssay(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            var formData = new FormData(document.getElementById('essayForm'));
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('result').innerText = 'Error: ' + data.error;
+                } else {
+                    var predictions = data.predictions;
+                    document.getElementById('result').innerHTML = `
+                        <h3>Grades</h3>
+                        <h3>For traits</h3>
+                        <p><strong>Ideas:</strong> ${Math.round(predictions[0][0]) + Math.round(predictions[0][4])}/12</p>
+                        <p><strong>Organization:</strong> ${Math.round(predictions[0][1]) + Math.round(predictions[0][5])}/6</p>
+                        <p><strong>Style:</strong> ${Math.round(predictions[0][2]) + Math.round(predictions[0][6])}/6</p>
+                        <p><strong>Convention:</strong> ${Math.round(predictions[0][3]) + Math.round(predictions[0][7])}/6</p>
+                        <h3>Overall</h3>
+                        <p><strong>Grade:</strong> ${Math.round(predictions[0][8])}/30</p>
+                    `;
+                }
+            })
+            .catch(error => {
+                document.getElementById('result').innerText = 'Error: ' + error;
+            });
+        }
+    </script>
+</body>
+</html>
