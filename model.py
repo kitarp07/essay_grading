@@ -52,3 +52,90 @@ class BertForRegressionForAllSets(BertPreTrainedModel):
             combined_output = cls_output  # If no features are provided, use only the CLS output
         overall = self.overall_head(combined_output)
         return overall
+    
+class BertForRegression2(BertPreTrainedModel):
+    def __init__(self, config):
+        super().__init__(config)
+        self.bert = BertModel(config)
+        input_dim = config.hidden_size + 9
+        self.batch_norm = nn.BatchNorm1d(input_dim)
+        self.overall_head = nn.Linear(input_dim, 1)
+
+    def forward(self, input_ids, attention_mask=None, features = None):
+        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+        cls_output = outputs.last_hidden_state[:, 0, :]
+
+        # Concatenate features to the CLS output
+        if features is not None:
+            # Ensure features are of the right type and on the correct device
+            features = features.to(cls_output.device, dtype=cls_output.dtype)
+            combined_output = torch.cat((cls_output, features), dim=1)  # Concatenate along the feature dimension
+            combined_output = self.batch_norm(combined_output)
+        else:
+            combined_output = cls_output  # If no features are provided, use only the CLS output
+        overall = self.overall_head(combined_output)
+        return overall
+    
+class BertForRegression_12(BertPreTrainedModel):
+    def __init__(self, config):
+        super().__init__(config)
+        self.bert = BertModel(config)
+        input_dim = config.hidden_size + 9
+        self.dropout = nn.Dropout(p=0.3) 
+        self.batch_norm = nn.BatchNorm1d(input_dim)
+        
+        self.content_head = nn.Linear(input_dim, 1)
+        self.org_head = nn.Linear(input_dim, 1)
+        self.wordchoice_head = nn.Linear(input_dim, 1)
+        self.fluency_head = nn.Linear(input_dim, 1)
+        self.convention_head = nn.Linear(input_dim, 1)
+        
+    def forward(self, input_ids, attention_mask=None, features = None):
+        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+        cls_output = outputs.last_hidden_state[:, 0, :]
+
+        # Concatenate features to the CLS output
+        if features is not None:
+            # Ensure features are of the right type and on the correct device
+            features = features.to(cls_output.device, dtype=cls_output.dtype)
+            combined_output = torch.cat((cls_output, features), dim=1)  # Concatenate along the feature dimension
+            combined_output = self.batch_norm(combined_output)
+        else:
+            combined_output = cls_output  # If no features are provided, use only the CLS output
+        score_1 = self.content_head(combined_output)
+        score_2 = self.org_head(combined_output)
+        score_3 = self.wordchoice_head(combined_output)
+        score_4 = self.fluency_head(combined_output)
+        score_5 = self.convention_head(combined_output)
+        return score_1, score_2, score_3, score_4, score_5
+    
+
+class BertForRegression_Source_Dependent(BertPreTrainedModel):
+    def __init__(self, config):
+        super().__init__(config)
+        self.bert = BertModel(config)
+        input_dim = config.hidden_size + 9
+        self.dropout = nn.Dropout(p=0.3) 
+        self.batch_norm = nn.BatchNorm1d(input_dim)
+        self.content_head = nn.Linear(input_dim, 1)
+        self.prompt_adh = nn.Linear(input_dim, 1)
+        self.language = nn.Linear(input_dim, 1)
+        self.narrativity = nn.Linear(input_dim, 1)
+        
+    def forward(self, input_ids, attention_mask=None, features = None):
+        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+        cls_output = outputs.last_hidden_state[:, 0, :]
+
+        # Concatenate features to the CLS output
+        if features is not None:
+            # Ensure features are of the right type and on the correct device
+            features = features.to(cls_output.device, dtype=cls_output.dtype)
+            combined_output = torch.cat((cls_output, features), dim=1)  # Concatenate along the feature dimension
+            combined_output = self.batch_norm(combined_output)
+        else:
+            combined_output = cls_output  # If no features are provided, use only the CLS output
+        score_1 = self.content_head(combined_output)
+        score_2 = self.prompt_adh(combined_output)
+        score_3 = self.language(combined_output)
+        score_4 = self.narrativity(combined_output)
+        return score_1, score_2, score_3, score_4

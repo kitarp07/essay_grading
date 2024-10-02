@@ -83,8 +83,8 @@
     </style>
 </head>
 <body>
+    {% include 'navbar.html' %}
     <div class="container">
-        <!-- Upload Form Section -->
         <div class="upload-form">
             <form action="/scoring" method="post" enctype="multipart/form-data">
                 <label for="file">Upload CSV File:</label>
@@ -93,9 +93,7 @@
             </form>
         </div>
 
-        <!-- Main Content Section -->
         <div class="container-flex">
-            <!-- Essays Section -->
             <div class="section essays">
                 <div class="section-header">Essays</div>
                 {% for essay in essays %}
@@ -105,7 +103,6 @@
                 {% endfor %}
             </div>
 
-            <!-- Scores Section -->
             <div class="section scores">
                 <div class="section-header">Scores</div>
                 {% for score in scores %}
@@ -115,7 +112,6 @@
                 {% endfor %}
             </div>
 
-            <!-- Predicted Scores Section -->
             <div class="section predicted-scores">
                 <div class="section-header">Predicted Scores</div>
                 {% for predicted in predicted_scores %}
@@ -125,7 +121,6 @@
                 {% endfor %}
             </div>
 
-            <!-- Essay Sets Section -->
             <div class="section essay-sets">
                 <div class="section-header">Essay Sets</div>
                 {% for set in essay_sets %}
